@@ -8,6 +8,7 @@
 }
 
 .agent-visualizer > .lk-audio-bar {
+  --lk-va-bar-border-radius: 50px;
   width: 72px;
 }
 

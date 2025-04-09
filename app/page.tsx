@@ -2,7 +2,6 @@
 
 import { CloseIcon } from "@/components/CloseIcon";
 import { NoAgentNotification } from "@/components/NoAgentNotification";
-import TranscriptionView from "@/components/TranscriptionView";
 import {
   BarVisualizer,
   DisconnectButton,
@@ -64,29 +63,27 @@ function SimpleVoiceAssistant(props: { onConnectButtonClicked: () => void }) {
   const { state: agentState } = useVoiceAssistant();
   return (
     <>
-      <AnimatePresence>
-        {agentState === "disconnected" && (
-          <motion.button
+      <div className="relative h-[300px] flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {agentState === "disconnected" ? (
+            <motion.button
             initial={{ opacity: 0, top: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, top: "-10px" }}
             transition={{ duration: 1, ease: [0.09, 1.04, 0.245, 1.055] }}
-            className="uppercase absolute left-1/2 -translate-x-1/2 px-4 py-2 bg-white text-black rounded-md"
+            className="uppercase px-4 py-2 bg-white text-black rounded-md"
             onClick={() => props.onConnectButtonClicked()}
           >
             Start a conversation
           </motion.button>
+        ) : (
+          <ControlBar />
         )}
-        <div className="w-3/4 lg:w-1/2 mx-auto h-full">
-          <TranscriptionView />
-        </div>
       </AnimatePresence>
+      </div>
 
       <RoomAudioRenderer />
       <NoAgentNotification state={agentState} />
-      <div className="fixed bottom-0 w-full px-4 py-2">
-        <ControlBar />
-      </div>
     </>
   );
 }
@@ -104,33 +101,41 @@ function ControlBar() {
   const { state: agentState, audioTrack } = useVoiceAssistant();
 
   return (
-    <div className="relative h-[100px]">
-      <AnimatePresence>
-        {agentState !== "disconnected" && agentState !== "connecting" && (
-          <motion.div
-            initial={{ opacity: 0, top: "10px" }}
-            animate={{ opacity: 1, top: 0 }}
-            exit={{ opacity: 0, top: "-10px" }}
-            transition={{ duration: 0.4, ease: [0.09, 1.04, 0.245, 1.055] }}
-            className="flex absolute w-full h-full justify-between px-8 sm:px-4"
-          >
-            <BarVisualizer
-              state={agentState}
-              barCount={5}
-              trackRef={audioTrack}
-              className="agent-visualizer w-24 gap-2"
-              options={{ minHeight: 12 }}
-            />
-            <div className="flex items-center">
+    <motion.div
+        initial={{ opacity: 0, top: "10px" }}
+        animate={{ opacity: 1, top: 0 }}
+        exit={{ opacity: 0, top: "-10px" }}
+        transition={{ duration: 1, ease: [0.09, 1.04, 0.245, 1.055] }}
+     className="relative h-full">
+      <div
+        className="flex justify-center w-full h-full px-8 sm:px-4"
+      >
+        <BarVisualizer
+          state={agentState}
+          barCount={5}
+          trackRef={audioTrack}
+          className="agent-visualizer w-full gap-3"
+          options={{ minHeight: 24 }}
+        />
+
+        <AnimatePresence>
+          {agentState !== "connecting" && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.09, 1.04, 0.245, 1.055] }}
+              className="flex items-center absolute bottom-0"
+            >
               <VoiceAssistantControlBar controls={{ leave: false }} />
               <DisconnectButton>
                 <CloseIcon />
               </DisconnectButton>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
   );
 }
 
